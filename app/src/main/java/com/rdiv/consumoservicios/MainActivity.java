@@ -1,5 +1,6 @@
 package com.rdiv.consumoservicios;
 
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -18,69 +19,75 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class MainActivity extends AppCompatActivity {
-
-
-    EditText edNum1, ednum2;
-
-    Button btProcesar;
-    TextView tvResultado;
-
-
-    String respuesta;
-
-
-
+    EditText edNum1, edNum2;
+    Button btprocesar;
+    TextView tvresultado;
+    String Respuesta;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        edNum1=findViewById(R.id.txtN1);
-        edNum1=findViewById(R.id.txtN2);
-        btProcesar=findViewById(R.id.botonCalcular);
-        tvResultado=findViewById(R.id.tvResultado);
+        edNum1 = findViewById(R.id.num1);
+        edNum2 = findViewById(R.id.num2);
+        btprocesar = findViewById(R.id.btn_Re);
+        tvresultado = findViewById(R.id.resultado);
 
-        btProcesar.setOnClickListener(new View.OnClickListener() {
+        btprocesar.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 ConsumirApi();
             }
         });
+
     }
-        public void ConsumirApi(){
-            String equisde = "https://ejemplo2apimovil20240128220859.azurewebsites.net/api/Operaciones?a=4&b=7";
-            OkHttpClient cliente=new OkHttpClient();
+    private void ConsumirApi () {
+
+        String pro = "https://ejemplo2apimovil20240128220859.azurewebsites.net/api/Operaciones?a=" + edNum1.getText() + "&b=" + edNum2.getText();
+        OkHttpClient cliente=new OkHttpClient();
+
+        Request get=new Request.Builder().url(pro).build();
 
 
-            Request get=new Request.Builder().url(equisde).build();
+        cliente.newCall(get).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
 
-            cliente.newCall(get).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
+            }
 
-                }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try{
 
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
+                    ResponseBody responseBody=response.body();
+                    if(response.isSuccessful()){
 
 
-                    try{
-                        ResponseBody responseBody= response.body();
-                        if (!response.isSuccessful()){
-                            throw new IOException("Respuesta inesperada" +response);
 
-                        }
+                        Respuesta = responseBody.string();
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tvresultado.setText(Respuesta);
+                            }
+                        });
+                    }else{
+                        throw new IOException("Respuesta inesperada"+response);
 
-                        respuesta= responseBody.string();
 
-                    }catch (Exception e){
 
 
                     }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
-            });
 
-        }
 
+
+            }
+        });
 
     }
+
+
+}
